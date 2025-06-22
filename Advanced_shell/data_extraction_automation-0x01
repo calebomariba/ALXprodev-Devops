@@ -1,24 +1,14 @@
 #!/bin/bash
 
-# data_extraction_automation-0x01
-# Script to extract Pikachu's name, height, weight, and type from data.json
+# Extract values using jq
+NAME=$(jq -r '.name' data.json | sed 's/.*/\u&/')
+TYPE=$(jq -r '.types[0].type.name' data.json | sed 's/.*/\u&/')
 
-# Input file
-DATA_FILE="data.json"
+# Weight in kg, remove trailing ".0" if present
+WEIGHT=$(jq '.weight' data.json | awk '{ kg=$1/10; sub(/\.0$/, "", kg); print kg }')
 
-# Check if data.json exists
-if [ ! -f "$DATA_FILE" ]; then
-    echo "Error: $DATA_FILE not found"
-    exit 1
-fi
+# Height in meters, keep 1 decimal always
+HEIGHT=$(jq '.height' data.json | awk '{ printf "%.1f", $1/10 }')
 
-# Extract data using jq, process with awk, and include sed
-jq -r '{name: .name, height: .height, weight: .weight, type: .types[0].type.name}' "$DATA_FILE" | \
-awk '{
-    if ($0 ~ /"name"/) name=tolower($2); sub(/"/,"",name); name=toupper(substr(name,1,1)) substr(name,2)
-    if ($0 ~ /"height"/) height=$2/10
-    if ($0 ~ /"weight"/) weight=$2/10
-    if ($0 ~ /"type"/) type=tolower($2); sub(/"/,"",type); type=toupper(substr(type,1,1)) substr(type,2)
-} END {
-    printf "%s is of type %s, weighs %dkg, and is %.1fm tall.\n", name, type, weight, height
-}' | sed ''
+# Output the final result
+echo "$NAME is of type $TYPE, weighs ${WEIGHT}kg, and is ${HEIGHT}m tall."
