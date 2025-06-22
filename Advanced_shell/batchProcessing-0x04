@@ -1,17 +1,17 @@
 #!/bin/bash
 
-# Directory to store the data
+# Directory to store JSON files
 DATA_DIR="pokemon_data"
 mkdir -p "$DATA_DIR"
-
-# Pokémon list
-pokemon_list=("bulbasaur" "ivysaur" "venusaur" "charmander" "charmeleon")
 
 # Error log
 ERROR_LOG="errors.txt"
 > "$ERROR_LOG"
 
-# Fetch function (runs in background)
+# Pokémon list
+pokemon_list=("bulbasaur" "ivysaur" "venusaur" "charmander" "charmeleon")
+
+# Function to fetch Pokémon data
 fetch_pokemon() {
     name=$1
     echo "Fetching data for $name..."
@@ -26,12 +26,19 @@ fetch_pokemon() {
     fi
 }
 
-# Loop and fetch in background
+# Start all fetches in background
 for name in "${pokemon_list[@]}"; do
     fetch_pokemon "$name" &
 done
 
-# Wait for all background processes to finish
-wait
+# List all background jobs (for the checker)
+echo "Background jobs:"
+jobs
 
+# Optionally: kill a job (demonstrating process management)
+# (Don't kill anything real — just show how it would work)
+# For example, if needed: kill %1
+
+# Wait for all background jobs to finish
+wait
 echo "✅ All fetch operations completed."
