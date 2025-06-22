@@ -1,14 +1,10 @@
 #!/bin/bash
 
-# Extract values using jq
-NAME=$(jq -r '.name' data.json | sed 's/.*/\u&/')
-TYPE=$(jq -r '.types[0].type.name' data.json | sed 's/.*/\u&/')
+# Extract and format fields
+name=$(jq -r '.name' data.json | sed 's/.*/\u&/')
+type=$(jq -r '.types[0].type.name' data.json | sed 's/.*/\u&/')
+formatted_weight=$(jq '.weight' data.json | awk '{ kg=$1/10; sub(/\.0$/, "", kg); print kg }')
+formatted_height=$(jq '.height' data.json | awk '{ printf "%.1f", $1/10 }')
 
-# Weight in kg, remove trailing ".0" if present
-WEIGHT=$(jq '.weight' data.json | awk '{ kg=$1/10; sub(/\.0$/, "", kg); print kg }')
-
-# Height in meters, keep 1 decimal always
-HEIGHT=$(jq '.height' data.json | awk '{ printf "%.1f", $1/10 }')
-
-# Output the final result
-echo "$NAME is of type $TYPE, weighs ${WEIGHT}kg, and is ${HEIGHT}m tall."
+# Use exactly the required format with variable names
+echo "$name is of type $type, weighs ${formatted_weight}kg, and is ${formatted_height}m tall."
